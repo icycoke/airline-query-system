@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * Main class using optimized sequential query
+ */
 public class SequentialMain {
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);

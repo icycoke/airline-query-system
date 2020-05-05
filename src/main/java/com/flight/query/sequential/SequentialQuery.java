@@ -3,19 +3,15 @@ package com.flight.query.sequential;
 import java.io.*;
 import java.util.*;
 
+/**
+ * An optimized sequential query
+ */
 public class SequentialQuery {
     public static Set<Route> ttcQuery(Date startDate, Date endDate) {
         // Input path of the query
         String inputPath = "./input/inputV1.txt";
         // The input file
         File inputFile = new File(inputPath);
-
-        // The date at middle between start date and end date
-        //Date midDate = getMidDate(startDate, endDate);
-        // A set contains all route before mid date
-        //Set<Route> firstPartRoutes = new HashSet<>();
-        // A set contains all route after mid date
-        //Set<Route> secondPartsRoutes = new HashSet<>();
 
         // A map contains all <Date, Set<Route>> pairs
         Map<Date, Set<Route>> dateListMap = new HashMap<>();
@@ -65,7 +61,12 @@ public class SequentialQuery {
             e.printStackTrace();
         }
 
+        // The result of the query
         Set<Route> res = setQueue.remove();
+
+        /*
+        Merge all set of routes and add new valid routes to the result
+         */
         while (!setQueue.isEmpty()) {
             Set<Route> setToMerge = setQueue.remove();
             Set<Route> setToAdd = new HashSet<>();

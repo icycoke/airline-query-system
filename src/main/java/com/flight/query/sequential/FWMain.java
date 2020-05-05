@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Main class using Floyd-Warshall query
+ */
 public class FWMain {
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
