@@ -15,7 +15,7 @@ public class FloydWarshellQuery {
         // A set contains all possibly valid airports
         Set<Airport> airportSet = new HashSet<>();
         // A set contains all valid routes
-        Set<Route> directRouteSet = new HashSet<>();
+        List<Route> directRouteList = new ArrayList<>();
         // A matrix contains the routes between airports
         ArrayList<Route>[][] routeMatrix;
 
@@ -43,7 +43,7 @@ public class FloydWarshellQuery {
                             Airport destAirport = new Airport(strArr[11]);
                             airportSet.add(depAirport);
                             airportSet.add(destAirport);
-                            directRouteSet.add(new Route(depAirport, destAirport, curDate, curDate));
+                            directRouteList.add(new Route(depAirport, destAirport, curDate, curDate));
                         }
                     }
                 }
@@ -74,7 +74,7 @@ public class FloydWarshellQuery {
         }
 
         // Add all direct route to the route matrix
-        for (Route directRoute : directRouteSet) {
+        for (Route directRoute : directRouteList) {
             int i = airportIndexMap.get(directRoute.getDepAirport());
             int j = airportIndexMap.get(directRoute.getDestAirport());
             routeMatrix[i][j].add(directRoute);

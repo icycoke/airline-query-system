@@ -22,12 +22,11 @@ public class FWMain {
         long startTime = System.currentTimeMillis();
         List<List<Airport>> res = FloydWarshellQuery.ttcQuery(startDate, endDate);
         long endTime = System.currentTimeMillis();
-        /*
+
         for (List<Airport> pair : res) {
             System.out.println(pair.get(0).getId() + " " + pair.get(1).getId());
         }
 
-         */
         System.out.println("Number of pairs: " + res.size());
         System.out.print("Time cost: ");
         System.out.print(endTime - startTime);

@@ -78,6 +78,6 @@ public class Route {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(getDepAirport(), getDestAirport());
+        return Objects.hash(getDepAirport().getId(), getDestAirport().getId());
     }
 }
