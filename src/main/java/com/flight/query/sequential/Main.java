@@ -13,10 +13,15 @@ public class Main {
         System.out.print("Input the time limit (min): ");
         String inputString = sc.nextLine();
         int timeLimit = Integer.valueOf(inputString).intValue();
+        long startTime = System.currentTimeMillis();
         List<List<Airport>> res = SequentialQuery.ttcQuery(timeLimit);
+        long endTime = System.currentTimeMillis();
         for (List<Airport> pair : res) {
             System.out.println(pair.get(0).getId() + " " + pair.get(1).getId());
         }
-        System.out.println(res.size());
+        System.out.println("Amount of the pairs: " + res.size());
+        System.out.print("Query time cost: ");
+        System.out.print(endTime - startTime);
+        System.out.println("ms");
     }
 }
