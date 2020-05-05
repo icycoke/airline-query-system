@@ -2,6 +2,7 @@ package com.flight.query.sequential;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -19,9 +20,10 @@ public class Main {
         Date endDate = new Date(Integer.valueOf(endArr[0]) - 1900,
                 Integer.valueOf(endArr[1]) - 1,
                 Integer.valueOf(endArr[2]));
-        Set<Route> res = SequentialQuery.ttcQuery(startDate, endDate);
-        for (Route route : res) {
-            System.out.println(route.getDepAirport().getId() + ", " + route.getDestAirport().getId());
+        List<List<Airport>> res = SequentialQuery.ttcQuery(startDate, endDate);
+        for (List<Airport> pair : res) {
+            System.out.println(pair.get(0).getId() + " " + pair.get(1).getId());
         }
+        System.out.println(res.size());
     }
 }

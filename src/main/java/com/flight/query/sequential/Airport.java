@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * An airport
  */
-public class Airport extends Object{
+public class Airport extends Object {
     // The unique id of the airport
     private String id;
 
@@ -15,6 +15,7 @@ public class Airport extends Object{
 
     /**
      * Get the id of the airport
+     *
      * @return id of the airport
      */
     public String getId() {
@@ -23,6 +24,7 @@ public class Airport extends Object{
 
     /**
      * If the airport equals another object
+     *
      * @param o the object to compare
      * @return if the airport equals another object
      */
@@ -30,14 +32,15 @@ public class Airport extends Object{
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof Airport))
+        if (o == null && !(o instanceof Airport))
             return false;
         Airport airport = (Airport) o;
-        return getId() == airport.getId();
+        return getId().equals(airport.getId());
     }
 
     /**
      * Get the hash code of the airport
+     *
      * @return the hash code generated from airport's id
      */
     @Override
