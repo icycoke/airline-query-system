@@ -9,7 +9,7 @@ import java.util.*;
 public class SequentialQuery {
     public static List<List<Airport>> ttcQuery(int timeLimit) {
         // Input path of the query
-        String inputPath = "./input/input.txt";
+        String inputPath = "input/input.txt";
         // The input file
         File inputFile = new File(inputPath);
         // A set contains all possibly valid airports
@@ -30,11 +30,11 @@ public class SequentialQuery {
                 String[] strArr;
 
                 strArr = curLine.split("\"");
-                if (strArr.length == 13 && strArr[12].length() > 0) {
-                    int airTime = Integer.parseInt(strArr[12]);
+                if (strArr.length == 12 && strArr[11].length() > 0) {
+                    int airTime = Integer.parseInt(strArr[11]);
                     if (airTime <= timeLimit) {
-                        Airport depAirport = new Airport(strArr[8]);
-                        Airport destAirport = new Airport(strArr[10]);
+                        Airport depAirport = new Airport(strArr[7]);
+                        Airport destAirport = new Airport(strArr[9]);
                         airportSet.add(depAirport);
                         airportSet.add(destAirport);
                         directRouteSet.add(new Route(depAirport, destAirport, airTime));
