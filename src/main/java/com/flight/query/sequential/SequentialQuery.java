@@ -7,17 +7,17 @@ import java.util.*;
  * A class represent a sequential query for airlines
  */
 public class SequentialQuery {
-    public static List<List<Airport>> ttcQuery(Date startDate, Date endDate) {
+    public static List<List<Airport>> ttcQuery(int timeLimit) {
         // Input path of the query
-        String inputPath = "./input/sqlinput.txt";
+        String inputPath = "./input/input.txt";
         // The input file
         File inputFile = new File(inputPath);
         // A set contains all possibly valid airports
         Set<Airport> airportSet = new HashSet<>();
         // A set contains all valid routes
         Set<Route> directRouteSet = new HashSet<>();
-        // A matrix contains the routes between airports
-        ArrayList<Route>[][] routeMatrix;
+        // A matrix contains the time cost of route between airports
+        int[][] timeMatrix;
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
@@ -30,27 +30,18 @@ public class SequentialQuery {
                 String[] strArr;
 
                 strArr = curLine.split("\"");
-                if (strArr.length == 14) {
-                    // The array contains year, month, and day of current line
-                    String[] dateArr = strArr[1].split("-");
-                    if (dateArr.length == 3) {
-                        // The date of the flight
-                        Date curDate = new Date(Integer.valueOf(dateArr[0]) - 1900,
-                                Integer.valueOf(dateArr[1]) - 1,
-                                Integer.valueOf(dateArr[2]));
-                        if (curDate.compareTo(startDate) >= 0 && curDate.compareTo(endDate) <= 0) {
-                            Airport depAirport = new Airport(strArr[7]);
-                            Airport destAirport = new Airport(strArr[11]);
-                            airportSet.add(depAirport);
-                            airportSet.add(destAirport);
-                            directRouteSet.add(new Route(depAirport, destAirport, curDate, curDate));
-                        }
+                if (strArr.length == 13) {
+                    int airTime = Integer.parseInt(strArr[12]);
+                    if (airTime <= timeLimit) {
+                        Airport depAirport = new Airport(strArr[8]);
+                        Airport destAirport = new Airport(strArr[10]);
+                        airportSet.add(depAirport);
+                        airportSet.add(destAirport);
+                        directRouteSet.add(new Route(depAirport, destAirport, airTime));
                     }
                 }
             }
             br.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,11 +56,22 @@ public class SequentialQuery {
             index++;
         }
 
+        // A map of <index, airport> pairs
+        Map<Integer, Airport> indexAirportMap = new HashMap<>();
+        // Generate the index-airport map
+        for (Airport airport : airportSet) {
+            indexAirportMap.put(airportIndexMap.get(airport), airport);
+        }
+
         // Initialize the route matrix
-        routeMatrix = new ArrayList[airportSet.size()][airportSet.size()];
-        for (int i = 0; i < routeMatrix.length; i++) {
-            for (int j = 0; j < routeMatrix[0].length; j++) {
-                routeMatrix[i][j] = new ArrayList<>();
+        timeMatrix = new int[airportSet.size()][airportSet.size()];
+        for (int i = 0; i < timeMatrix.length; i++) {
+            for (int j = 0; j < timeMatrix[0].length; j++) {
+                if (i == j) {
+                    timeMatrix[i][j] = 0;
+                } else {
+                    timeMatrix[i][j] = Integer.MAX_VALUE;
+                }
             }
         }
 
@@ -77,38 +79,25 @@ public class SequentialQuery {
         for (Route directRoute : directRouteSet) {
             int i = airportIndexMap.get(directRoute.getDepAirport());
             int j = airportIndexMap.get(directRoute.getDestAirport());
-            routeMatrix[i][j].add(directRoute);
+            timeMatrix[i][j] = Math.min(timeMatrix[i][j], directRoute.getTime());
         }
 
-        // Use Floyd-Warshall algorithm to generate all valid routes
-        for (int k = 0; k < routeMatrix.length; k++) {
-            for (int i = 0; i < routeMatrix.length; i++) {
-                for (int j = 0; j < routeMatrix.length; j++) {
-                    for (int firstIndex = 0; firstIndex < routeMatrix[i][k].size(); firstIndex++) {
-                        for (int secondIndex = 0; secondIndex < routeMatrix[k][j].size(); secondIndex++) {
-                            Route firstPart = routeMatrix[i][k].get(firstIndex);
-                            Route secondPart = routeMatrix[k][j].get(secondIndex);
-                            if (firstPart != null
-                                    && secondPart != null
-                                    && firstPart.getEndDate().compareTo(secondPart.getStartDate()) < 0) {
-                                routeMatrix[i][j].add(new Route(firstPart.getDepAirport(),
-                                        secondPart.getDestAirport(),
-                                        firstPart.getStartDate(),
-                                        secondPart.getEndDate()));
-                            }
-                        }
-                    }
+        // Use Floyd-Warshall algorithm to generate all time cost for routes
+        for (int k = 0; k < timeMatrix.length; k++) {
+            for (int i = 0; i < timeMatrix.length; i++) {
+                for (int j = 0; j < timeMatrix.length; j++) {
+                    timeMatrix[i][j] = Math.min(timeMatrix[i][k] + timeMatrix[k][j], timeMatrix[i][j]);
                 }
             }
         }
 
         List<List<Airport>> resList = new ArrayList<>();
-        for (int i = 0; i < routeMatrix.length; i++) {
-            for (int j = 0; j < routeMatrix.length; j++) {
-                if (!routeMatrix[i][j].isEmpty()) {
+        for (int i = 0; i < timeMatrix.length; i++) {
+            for (int j = 0; j < timeMatrix.length; j++) {
+                if (timeMatrix[i][j] <= timeLimit) {
                     ArrayList<Airport> curPair = new ArrayList<>();
-                    curPair.add(routeMatrix[i][j].get(0).getDepAirport());
-                    curPair.add(routeMatrix[i][j].get(0).getDestAirport());
+                    curPair.add(indexAirportMap.get(i));
+                    curPair.add(indexAirportMap.get(j));
                     resList.add(curPair);
                 }
             }

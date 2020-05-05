@@ -1,8 +1,5 @@
 package com.flight.query.sequential;
 
-import java.util.Date;
-import java.util.Objects;
-
 /**
  * A route
  */
@@ -11,16 +8,13 @@ public class Route {
     private Airport depAirport;
     // The destination airport
     private Airport destAirport;
-    // The start date of the route
-    private Date startDate;
-    // The end date of the route
-    private Date endDate;
+    // The time cost of the route
+    private int time;
 
-    public Route(Airport depAirport, Airport destAirport, Date startDate, Date endDate) {
+    public Route(Airport depAirport, Airport destAirport, int time) {
         this.depAirport = depAirport;
         this.destAirport = destAirport;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.time = time;
     }
 
     /**
@@ -40,18 +34,10 @@ public class Route {
     }
 
     /**
-     * Get the start date
-     * @return the start date
+     * Get the time cost
+     * @return the time cost
      */
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    /**
-     * Get the end date
-     * @return the end date
-     */
-    public Date getEndDate() {
-        return endDate;
+    public int getTime() {
+        return time;
     }
 }
