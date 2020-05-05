@@ -54,4 +54,30 @@ public class Route {
     public Date getEndDate() {
         return endDate;
     }
+
+    /**
+     * If the route equals another route
+     *
+     * @param o the object to compare
+     * @return if the route equals another route
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || !(o instanceof Route))
+            return false;
+        Route route = (Route) o;
+        return getDepAirport().equals(route.getDepAirport()) && getDestAirport().equals(route.getDestAirport());
+    }
+
+    /**
+     * Get the hash code of the route
+     *
+     * @return the hash code generated from departure and destination airport
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(getDepAirport(), getDestAirport());
+    }
 }

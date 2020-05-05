@@ -2,11 +2,10 @@ package com.flight.query.sequential;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-public class Main {
+public class SequentialMain {
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
 
@@ -20,10 +19,17 @@ public class Main {
         Date endDate = new Date(Integer.valueOf(endArr[0]) - 1900,
                 Integer.valueOf(endArr[1]) - 1,
                 Integer.valueOf(endArr[2]));
-        List<List<Airport>> res = SequentialQuery.ttcQuery(startDate, endDate);
-        for (List<Airport> pair : res) {
-            System.out.println(pair.get(0).getId() + " " + pair.get(1).getId());
+        long startTime = System.currentTimeMillis();
+        Set<Route> res = SequentialQuery.ttcQuery(startDate, endDate);
+        long endTime = System.currentTimeMillis();
+
+        for (Route route : res) {
+            System.out.println(route.getDepAirport().getId() + " " + route.getDestAirport().getId());
         }
-        System.out.println(res.size());
+
+        System.out.println("Number of pairs: " + res.size());
+        System.out.print("Time cost: ");
+        System.out.print(endTime - startTime);
+        System.out.println("ms");
     }
 }

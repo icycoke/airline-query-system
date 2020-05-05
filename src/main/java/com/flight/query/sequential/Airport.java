@@ -32,7 +32,7 @@ public class Airport extends Object {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null && !(o instanceof Airport))
+        if (o == null || !(o instanceof Airport))
             return false;
         Airport airport = (Airport) o;
         return getId().equals(airport.getId());
