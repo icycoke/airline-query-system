@@ -30,7 +30,7 @@ public class SequentialQuery {
                 String[] strArr;
 
                 strArr = curLine.split("\"");
-                if (strArr.length == 13) {
+                if (strArr.length == 13 && strArr[12].length() > 0) {
                     int airTime = Integer.parseInt(strArr[12]);
                     if (airTime <= timeLimit) {
                         Airport depAirport = new Airport(strArr[8]);
