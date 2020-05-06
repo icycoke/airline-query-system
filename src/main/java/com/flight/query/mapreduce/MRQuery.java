@@ -19,32 +19,41 @@ public class MRQuery {
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String[] strArr = value.toString().split("\"");
-            context.write(new Text(strArr[0] + " " + strArr[0]), new Text(strArr[7] + " " + strArr[11]));
+            context.write(new Text(strArr[1] + " " + strArr[1]), new Text(strArr[7] + " " + strArr[11]));
         }
     }
 
     private static class QueryReducer extends Reducer<Text, Text, Text, Text> {
         @Override
         protected void reduce(Text key, Iterable<Text> values, Context context) {
-            String[] airportsStrArr = values.toString().split(" ");
-            String[] dateStrArr = key.toString().split(" ");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
             try {
-                Route route = new Route(new Airport(airportsStrArr[0]),
-                        new Airport(airportsStrArr[1]),
-                        sdf.parse(dateStrArr[0]),
-                        sdf.parse(dateStrArr[1]));
-                routeSet.add(route);
-                context.write(new Text(route.getDepAirport().getId()), new Text(route.getDestAirport().getId()));
-                for (Route existedRoute : routeSet) {
-                    if (existedRoute.getDestAirport().equals(route.getDepAirport())
-                            && existedRoute.getEndDate().compareTo(route.getStartDate()) < 0) {
-                        Route routeToAdd = new Route(existedRoute.getDepAirport(),
-                                route.getDestAirport(),
-                                existedRoute.getStartDate(),
-                                route.getEndDate());
-                        routeSet.add(routeToAdd);
-                        context.write(new Text(routeToAdd.getDepAirport().getId()), new Text(routeToAdd.getDestAirport().getId()));
+                String[] dateStrArr = key.toString().split(" ");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+                String[] airportsStrArr;
+                Queue<Route> routeQueue = new LinkedList<>();
+                for (Text value :values) {
+                    airportsStrArr = value.toString().split(" ");
+                    Airport airport1 = new Airport(airportsStrArr[0]);
+                    Airport airport2 = new Airport(airportsStrArr[1]);
+                    Route route = new Route(airport1,
+                            airport2,
+                            sdf.parse(dateStrArr[0]),
+                            sdf.parse(dateStrArr[1]));
+                    context.write(new Text(route.getDepAirport().getId()), new Text(route.getDestAirport().getId()));
+                    routeQueue.add(route);
+                    for (Route existedRoute : routeSet) {
+                        if (existedRoute.getDestAirport().equals(route.getDepAirport())
+                                && existedRoute.getEndDate().compareTo(route.getStartDate()) < 0) {
+                            Route routeToAdd = new Route(existedRoute.getDepAirport(),
+                                    route.getDestAirport(),
+                                    existedRoute.getStartDate(),
+                                    route.getEndDate());
+                            routeQueue.add(routeToAdd);
+                            context.write(new Text(routeToAdd.getDepAirport().getId()), new Text(routeToAdd.getDestAirport().getId()));
+                        }
+                    }
+                    while (!routeQueue.isEmpty()) {
+                        routeSet.add(routeQueue.remove());
                     }
                 }
             } catch (ParseException e) {
