@@ -44,8 +44,10 @@ public class MRQuery {
                     Airport airport1 = new Airport(airportsStrArr[0]);
                     Airport airport2 = new Airport(airportsStrArr[1]);
                     Route route = new Route(airport1, airport2, sdf.parse(dateStrArr[0]), sdf.parse(dateStrArr[1]));
-                    context.write(new Text(route.getDepAirport().getId()), new Text(route.getDestAirport().getId()));
-                    routeQueue.add(route);
+                    if (!routeSet.contains(route)){
+                        context.write(new Text(route.getDepAirport().getId()), new Text(route.getDestAirport().getId()));
+                        routeQueue.add(route);
+                    }
                     for (Route existedRoute : routeSet) {
                         if (existedRoute.getDestAirport().equals(route.getDepAirport())
                                 && existedRoute.getEndDate().compareTo(route.getStartDate()) < 0) {
@@ -53,8 +55,10 @@ public class MRQuery {
                                     route.getDestAirport(),
                                     existedRoute.getStartDate(),
                                     route.getEndDate());
-                            routeQueue.add(routeToAdd);
-                            context.write(new Text(routeToAdd.getDepAirport().getId()), new Text(routeToAdd.getDestAirport().getId()));
+                            if (!routeSet.contains(routeToAdd)){
+                                routeQueue.add(routeToAdd);
+                                context.write(new Text(routeToAdd.getDepAirport().getId()), new Text(routeToAdd.getDestAirport().getId()));
+                            }
                         }
                     }
                     while (!routeQueue.isEmpty()) {
