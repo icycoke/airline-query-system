@@ -1,5 +1,8 @@
 package com.flight.query.sequential;
 
+import com.flight.query.Airport;
+import com.flight.query.Route;
+
 import java.io.*;
 import java.util.*;
 

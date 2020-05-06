@@ -1,5 +1,7 @@
 package com.flight.query.sequential;
 
+import com.flight.query.Airport;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;

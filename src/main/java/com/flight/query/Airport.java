@@ -1,4 +1,4 @@
-package com.flight.query.sequential;
+package com.flight.query;
 
 import java.util.Objects;
 
