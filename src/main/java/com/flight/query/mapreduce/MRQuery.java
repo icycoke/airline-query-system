@@ -36,7 +36,7 @@ public class MRQuery {
         protected void reduce(Text key, Iterable<Text> values, Context context) {
             try {
                 String[] dateStrArr = key.toString().split(" ");
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String[] airportsStrArr;
                 Queue<Route> routeQueue = new LinkedList<>();
                 for (Text value : values) {
