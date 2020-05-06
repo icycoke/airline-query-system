@@ -2,10 +2,18 @@ package com.flight.query.mapreduce;
 
 import com.flight.query.Airport;
 import com.flight.query.Route;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -31,14 +39,11 @@ public class MRQuery {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
                 String[] airportsStrArr;
                 Queue<Route> routeQueue = new LinkedList<>();
-                for (Text value :values) {
+                for (Text value : values) {
                     airportsStrArr = value.toString().split(" ");
                     Airport airport1 = new Airport(airportsStrArr[0]);
                     Airport airport2 = new Airport(airportsStrArr[1]);
-                    Route route = new Route(airport1,
-                            airport2,
-                            sdf.parse(dateStrArr[0]),
-                            sdf.parse(dateStrArr[1]));
+                    Route route = new Route(airport1, airport2, sdf.parse(dateStrArr[0]), sdf.parse(dateStrArr[1]));
                     context.write(new Text(route.getDepAirport().getId()), new Text(route.getDestAirport().getId()));
                     routeQueue.add(route);
                     for (Route existedRoute : routeSet) {
@@ -66,7 +71,39 @@ public class MRQuery {
         }
     }
 
-    public static void main(String[] args) {
-        // TODO
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
+        String[] path = {
+                "hdfs://master:9000/user/hduser/sort/input",
+                "hdfs://master:9000/user/hduser/sort/output"
+        };
+
+        Configuration conf = new Configuration();
+
+        Job job = Job.getInstance(conf);
+        job.setJarByClass(MRQuery.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+        job.setMapperClass(QueryMapper.class);
+        job.setReducerClass(QueryReducer.class);
+        job.setInputFormatClass(TextInputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
+
+        job.setNumReduceTasks(1);
+
+        FileInputFormat.setInputPaths(job, new Path(path[0]));
+
+        FileSystem fs = FileSystem.get(conf);
+        Path p = new Path(path[1]);
+        if (fs.exists(p)) {
+            fs.delete(p, true);
+        }
+        FileOutputFormat.setOutputPath(job, p);
+
+        boolean a = job.waitForCompletion(true);
+        if (a) {
+            System.exit(0);
+        } else {
+            System.exit(1);
+        }
     }
 }
