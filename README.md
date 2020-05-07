@@ -1,5 +1,6 @@
 # Airline Query System
-A simulation of part of an airline query system. The project contains implementation of three different algorithms including the Floyd-Warshall-like algorithm, the optimized sequential algorithm, and the MapReduce algorithm
+A simulation of part of an airline query system
+The project contains implementation of three different algorithms including the Floyd-Warshall-like algorithm, the optimized sequential algorithm, and the MapReduce algorithm
 
 ## Floyd-Warshall-like algorithm
 The Floyd-Warshall-like algorithm is implemented in com.flight.query.sequential.FloydWarshellQuery and run by com.flight.query.sequential.FWMain
