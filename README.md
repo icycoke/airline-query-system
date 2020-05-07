@@ -1,9 +1,18 @@
 # Airline Query System
-An airline query system supporting sequential query and distributed query. The system is used to compare the time cost of querying airlines by sequential algorithm with the time costs of querying airlines by MapReduce algorithm.
+A simulation of part of an airline query system. The project contains implementation of three different algorithms including the Floyd-Warshall-like algorithm, the optimized sequential algorithm, and the MapReduce algorithm
 
-## Sequential query
-The input airline datasets is in [./input/](https://github.com/icycoke/airline-query-system/tree/master/input).
-1. Run the Main.java in [./src/main/java/com/airline/query/sequential/](https://github.com/icycoke/airline-query-system/tree/master/src/main/java/com/airline/query/sequential).
-2. Input the start 
+## Floyd-Warshall-like algorithm
+The Floyd-Warshall-like algorithm is implemented in com.flight.query.sequential.FloydWarshellQuery and run by com.flight.query.sequential.FWMain
 
-// TODO
+## Optimized sequential algorithm
+The optimized sequential algorithm is implemented in com.flight.query.sequential.SequentialQuery and run by com.flight.query.sequential.SequentialMain
+
+## MapReduce algorithm
+The MapReduce algorithm is implemented in com.flight.query.mapreduce.MRQuery
+
+## Other notes
+1. com.flight.query.Route is a required class representing a route
+2. com.flight.query.Route is a required class representing an airport
+3. The input dataset is input/inputV1.txt. The dataset was downloaded from https://www.transtats.bts.gov/Fields.asp?Table_ID=236
+4. The implementation of MapReduce algorithm requires JDK 1.8 and Hadoop 2.7.7
+
