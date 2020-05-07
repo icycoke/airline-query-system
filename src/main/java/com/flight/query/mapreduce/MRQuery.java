@@ -40,10 +40,8 @@ public class MRQuery {
         protected void reduce(Text key, Iterable<Text> values, Context context) {
             try {
                 String[] dateStrArr = key.toString().split(" ");
-                String[] d = dateStrArr[1].split("-");
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String[] airportsStrArr;
-                Queue<Route> routeQueue = new LinkedList<>();
                 for (Text value : values) {
                     airportsStrArr = value.toString().split(" ");
                     Airport airport1 = new Airport(airportsStrArr[0]);
@@ -52,9 +50,11 @@ public class MRQuery {
                     Date p1 = sdf.parse(dateStrArr[1]);
 
                     Route route = new Route(airport1, airport2, p0, p1);
-                    if (!routeSet.contains(route)) {
+                    int sizeBefore = routeSet.size();
+                    routeSet.add(route);
+                    int sizeAfter = routeSet.size();
+                    if (sizeAfter > sizeBefore) {
                         context.write(new Text(route.getDepAirport().getId()), new Text(route.getDestAirport().getId()));
-                        routeQueue.add(route);
                     }
                     for (Route existedRoute : routeSet) {
                         if (existedRoute.getDestAirport().equals(route.getDepAirport())
@@ -63,14 +63,13 @@ public class MRQuery {
                                     route.getDestAirport(),
                                     existedRoute.getStartDate(),
                                     route.getEndDate());
-                            if (!routeSet.contains(routeToAdd)) {
-                                routeQueue.add(routeToAdd);
+                            sizeBefore = routeSet.size();
+                            routeSet.add(routeToAdd);
+                            sizeAfter = routeSet.size();
+                            if (sizeAfter > sizeBefore) {
                                 context.write(new Text(routeToAdd.getDepAirport().getId()), new Text(routeToAdd.getDestAirport().getId()));
                             }
                         }
-                    }
-                    while (!routeQueue.isEmpty()) {
-                        routeSet.add(routeQueue.remove());
                     }
                 }
             } catch (ParseException e) {
