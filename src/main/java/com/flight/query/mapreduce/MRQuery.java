@@ -1,3 +1,7 @@
+package com.flight.query.mapreduce;
+
+import com.flight.query.Airport;
+import com.flight.query.Route;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -14,8 +18,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-
-import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 
 
 import java.text.ParseException;
@@ -38,7 +40,6 @@ public class MRQuery {
         protected void reduce(Text key, Iterable<Text> values, Context context) {
             try {
                 String[] dateStrArr = key.toString().split(" ");
-		String[] d = dateStrArr[1].split("-");
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String[] airportsStrArr;
                 Queue<Route> routeQueue = new LinkedList<>();
@@ -46,13 +47,11 @@ public class MRQuery {
                     airportsStrArr = value.toString().split(" ");
                     Airport airport1 = new Airport(airportsStrArr[0]);
                     Airport airport2 = new Airport(airportsStrArr[1]);
-		    Date p0 = sdf.parse(dateStrArr[0]);
-                    Date p1 =sdf.parse(dateStrArr[1]);
-//System.out.println("+++++++");
-//System.out.println();
-			
+                    Date p0 = sdf.parse(dateStrArr[0]);
+                    Date p1 = sdf.parse(dateStrArr[1]);
+
                     Route route = new Route(airport1, airport2, p0, p1);
-                    if (!routeSet.contains(route)){
+                    if (!routeSet.contains(route)) {
                         context.write(new Text(route.getDepAirport().getId()), new Text(route.getDestAirport().getId()));
                         routeQueue.add(route);
                     }
@@ -63,7 +62,7 @@ public class MRQuery {
                                     route.getDestAirport(),
                                     existedRoute.getStartDate(),
                                     route.getEndDate());
-                            if (!routeSet.contains(routeToAdd)){
+                            if (!routeSet.contains(routeToAdd)) {
                                 routeQueue.add(routeToAdd);
                                 context.write(new Text(routeToAdd.getDepAirport().getId()), new Text(routeToAdd.getDestAirport().getId()));
                             }
@@ -83,65 +82,64 @@ public class MRQuery {
         }
     }
 
-	public static class MyPartitioner extends Partitioner<Text, Text> {
+    public static class MyPartitioner extends Partitioner<Text, Text> {
 
-	@Override
-	public int getPartition(Text key, Text value, int numPartitions) {
-		String[] dateStrArr = key.toString().split(" ");
-		String[] d = dateStrArr[1].split("-");
-		int day = Integer.parseInt(d[1]);
-		int result = (day-1)/3;
-		return result;
-		}
-	}
-
-   
-        public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
-		String[] path = {
-				"hdfs://master:9000/user/hduser/sort/input/",
-				"hdfs://master:9000/user/hduser/sort/output"
-		};
-		
-		Configuration conf = new Configuration();
-		
-		Job job = Job.getInstance(conf);
-		job.setJarByClass(MRQuery.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
-		job.setMapperClass(QueryMapper.class);
-		job.setReducerClass(QueryReducer.class);
-		job.setInputFormatClass(TextInputFormat.class);
-		job.setOutputFormatClass(TextOutputFormat.class);
-		
-		// 设置四个reduce同步执行
-		job.setNumReduceTasks(4);
-		// 设置Partitioner
-		job.setPartitionerClass(MyPartitioner.class);
-
-		
-		FileInputFormat.setInputPaths(job, new Path(path[0] + args[0]));
-
-		
-		FileSystem fs = FileSystem.get(conf);
+        @Override
+        public int getPartition(Text key, Text value, int numPartitions) {
+            String[] dateStrArr = key.toString().split(" ");
+            String[] d = dateStrArr[1].split("-");
+            int day = Integer.parseInt(d[1]);
+            int result = day / 7;
+            return result;
+        }
+    }
 
 
-		Path p = new Path(path[1]);
-		if(fs.exists(p)) {
-			// 目录存在,删除
-			fs.delete(p, true);
-		}
-		FileOutputFormat.setOutputPath(job, p);
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
+        String[] path = {
+                "hdfs://master:9000/user/hduser/sort/input/",
+                "hdfs://master:9000/user/hduser/sort/output"
+        };
 
-		boolean a = job.waitForCompletion(true);
+        Configuration conf = new Configuration();
+
+        Job job = Job.getInstance(conf);
+        job.setJarByClass(MRQuery.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+        job.setMapperClass(QueryMapper.class);
+        job.setReducerClass(QueryReducer.class);
+        job.setInputFormatClass(TextInputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
+
+        job.setNumReduceTasks(2);
+
+        job.setPartitionerClass(MyPartitioner.class);
+
+        FileInputFormat.setInputPaths(job, new Path(path[0] + args[0]));
+
+        FileSystem fs = FileSystem.get(conf);
+
+        Path p = new Path(path[1]);
+        if (fs.exists(p)) {
+            fs.delete(p, true);
+        }
+        FileOutputFormat.setOutputPath(job, p);
+        long startTime = System.currentTimeMillis();
+        boolean a = job.waitForCompletion(true);
+        long endTime = System.currentTimeMillis();
+        System.out.print("Time cost: ");
+        long elaps = endTime - startTime;
+        String elap = String.valueOf(elaps);
+        System.out.print(elap);
+        System.out.println("ms");
 
 
-		if(a) {
-			System.exit(0);
-		}
-		else {
+        if (a) {
+            System.exit(0);
+        } else {
+            System.exit(1);
+        }
+    }
 
-			System.exit(1);
-		}
-	}
-    
 }
