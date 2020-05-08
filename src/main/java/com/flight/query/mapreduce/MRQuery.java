@@ -89,7 +89,7 @@ public class MRQuery {
             String[] dateStrArr = key.toString().split(" ");
             String[] d = dateStrArr[1].split("-");
             int day = Integer.parseInt(d[1]);
-            int result = day / 7;
+            int result = (day - 1) / 3;
             return result;
         }
     }
